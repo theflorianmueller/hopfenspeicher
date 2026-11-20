@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hopfenspeicher-Test</title>
+<meta name="description" content="Der wissenschaftliche Schnelltest für deinen Hopfenspeicher.">
+<meta property="og:title" content="Hopfenspeicher-Test">
+<meta property="og:description" content="Leidest du an chronischer Unterhopfung? Jetzt testen.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Nunito:wght@500;700;800&display=swap">
+<style>
+:root {
+  --amber: #f2a51a; --amber-dark: #c8780a; --brown: #3b1f0a; --foam: #fffaf0;
+  --cream: #fff3d6; --glass: rgba(255,255,255,.25); --red: #b3261e;
+  --display: "Alfa Slab One", Georgia, serif;
+  --body: "Nunito", "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh; color: var(--brown); font-family: var(--body); font-size: 17px; line-height: 1.5;
+  background: linear-gradient(180deg, #f7c04a 0%, var(--amber) 45%, var(--amber-dark) 100%) fixed;
+  padding: 0 max(16px, env(safe-area-inset-left)) 48px;
+  overflow-x: hidden;
+}
+/* Schaumkrone oben */
+.foam {
+  height: 90px; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left)));
+  background: var(--foam);
+  -webkit-mask: radial-gradient(28px at 50% 100%, transparent 98%, #000) 0 0 / 56px 100% repeat-x;
+  position: relative; z-index: 2;
+}
+.foam-wrap { position: relative; }
+.foam-wrap::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 30px;
+  background: radial-gradient(circle at 28px 0, var(--foam) 26px, transparent 27px) 0 0 / 56px 30px repeat-x;
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left)));
+  z-index: 2;
+}
+/* aufsteigende Bläschen */
+.bubbles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.bubbles i {
+  position: absolute; bottom: -20px; border-radius: 50%;
+  background: rgba(255,255,255,.55); box-shadow: inset -2px -2px 3px rgba(255,255,255,.6);
+  animation: rise linear infinite;
+}
+@keyframes rise { to { transform: translateY(-110vh) translateX(10px); opacity: .2; } }
+@media (prefers-reduced-motion: reduce) { .bubbles { display: none; } }
+
+main { position: relative; z-index: 1; max-width: 580px; margin: 0 auto; display: grid; gap: 22px; }
+.hero { text-align: center; display: grid; justify-items: center; gap: 6px; margin-top: -40px; position: relative; z-index: 3; }
+.hero svg { width: 120px; height: auto; filter: drop-shadow(0 6px 10px rgba(59,31,10,.3)); }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(32px, 8vw, 48px); line-height: 1.05; margin: 0;
+  color: var(--foam); text-shadow: 0 3px 0 var(--brown), 0 6px 14px rgba(59,31,10,.35); text-wrap: balance; }
+.sub { font-weight: 800; margin: 0; max-width: 34ch; }
+
+.card { background: var(--cream); border-radius: 18px; padding: 22px; display: grid; gap: 22px;
+  box-shadow: 0 10px 30px rgba(59,31,10,.25), inset 0 0 0 3px rgba(59,31,10,.08); }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
+legend { font-family: var(--display); font-size: 19px; padding: 0; margin-bottom: 10px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opts label { position: relative; }
+.opts input { position: absolute; opacity: 0; }
+.opts span { display: inline-block; padding: 9px 14px; border: 2px solid var(--brown); border-radius: 999px; cursor: pointer; font-weight: 700; background: #fff; }
+.opts input:checked + span { background: var(--brown); color: var(--amber); }
+.opts input:focus-visible + span { outline: 3px solid var(--red); outline-offset: 2px; }
+.range { display: flex; align-items: center; gap: 12px; }
+.range input { flex: 1; accent-color: var(--amber-dark); height: 28px; }
+.range output { font-family: var(--display); font-size: 24px; min-width: 2ch; text-align: right; }
+.hint { font-size: 14px; opacity: .75; }
+button { font: 800 18px var(--body); padding: 14px 22px; border-radius: 999px; border: 0; cursor: pointer; }
+.primary { background: var(--brown); color: var(--amber); box-shadow: 0 4px 0 #1c0e04; }
+.primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #1c0e04; }
+.ghost { background: transparent; color: var(--brown); border: 2px solid var(--brown); }
+button:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+
+.analyse { text-align: center; font-weight: 800; display: grid; justify-items: center; gap: 12px; padding: 30px 0; }
+.analyse svg { width: 90px; animation: wobble .5s ease-in-out infinite alternate; }
+@keyframes wobble { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+
+.result { display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: center; }
+@media (max-width: 460px) { .result { grid-template-columns: 1fr; justify-items: center; text-align: center; } }
+.mug { width: 150px; height: auto; }
+#level { transition: y 1.6s ease-out, height 1.6s ease-out; }
+.stamp { font-family: var(--display); color: var(--red); font-size: 30px; line-height: 1.05; border: 4px solid var(--red);
+  border-radius: 8px; padding: 8px 12px; transform: rotate(-4deg); display: inline-block; text-wrap: balance; }
+.werte { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
+.werte li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 2px dotted rgba(59,31,10,.25); padding-bottom: 4px; }
+.werte b { color: var(--red); white-space: nowrap; }
+.rx { background: var(--brown); color: var(--cream); border-radius: 14px; padding: 18px 20px; display: grid; gap: 4px; text-align: center; }
+.rx .k { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--amber); font-weight: 800; }
+.rx strong { font-family: var(--display); font-weight: 400; font-size: clamp(24px, 6vw, 32px); line-height: 1.1; color: var(--foam); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+footer { text-align: center; font-size: 13px; font-weight: 700; opacity: .8; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="bubbles" id="bubbles"></div>
+<div class="foam-wrap"><div class="foam"></div></div>
+
+<main>
+  <div class="hero">
+    <svg viewBox="0 0 120 140" aria-hidden="true">
+      <rect x="18" y="30" width="70" height="100" rx="8" fill="#f2a51a" stroke="#3b1f0a" stroke-width="5"/>
+      <path d="M88 50 h12 a12 12 0 0 1 12 12 v30 a12 12 0 0 1 -12 12 h-12" fill="none" stroke="#3b1f0a" stroke-width="7"/>
+      <path d="M14 34 q8 -22 22 -14 q8 -14 22 -4 q12 -12 24 0 q14 -4 12 18 z" fill="#fffaf0" stroke="#3b1f0a" stroke-width="4"/>
+      <line x1="36" y1="48" x2="36" y2="118" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+      <line x1="53" y1="48" x2="53" y2="118" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+      <line x1="70" y1="48" x2="70" y2="118" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".5"/>
+    </svg>
+    <h1>Hopfenspeicher-Test</h1>
+    <p class="sub">Der wissenschaftliche Schnelltest. Vier Fragen, ein eindeutiger Befund.</p>
+  </div>
+
+  <form class="card" id="f">
+    <fieldset>
+      <legend>Wann hast du zuletzt ein Bier getrunken?</legend>
+      <div class="opts">
+        <label><input type="radio" name="wann" value="jetzt"><span>Gerade eben</span></label>
+        <label><input type="radio" name="wann" value="stunde" checked><span>Vor einer Stunde</span></label>
+        <label><input type="radio" name="wann" value="gestern"><span>Gestern</span></label>
+        <label><input type="radio" name="wann" value="woche"><span>Letzte Woche</span></label>
+        <label><input type="radio" name="wann" value="nie"><span>Weiß ich nicht mehr</span></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Wie viel war es?</legend>
+      <div class="opts">
+        <label><input type="radio" name="menge" value="schluck"><span>Ein Schluck</span></label>
+        <label><input type="radio" name="menge" value="033"><span>0,33 l</span></label>
+        <label><input type="radio" name="menge" value="05" checked><span>Halbe</span></label>
+        <label><input type="radio" name="menge" value="mass"><span>Eine Maß</span></label>
+        <label><input type="radio" name="menge" value="viel"><span>Mehrere Maß</span></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Welche Sorte?</legend>
+      <div class="opts">
+        <label><input type="radio" name="sorte" value="Helles" checked><span>Helles</span></label>
+        <label><input type="radio" name="sorte" value="Weißbier"><span>Weißbier</span></label>
+        <label><input type="radio" name="sorte" value="Pils"><span>Pils</span></label>
+        <label><input type="radio" name="sorte" value="Radler"><span>Radler</span></label>
+        <label><input type="radio" name="sorte" value="Alkoholfrei"><span>Alkoholfrei</span></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Wie groß ist der Durst gerade?</legend>
+      <div class="range">
+        <input type="range" id="durst" min="1" max="10" value="8" aria-label="Durst von 1 bis 10">
+        <output id="durstOut">8</output>
+      </div>
+      <div class="hint">1 = geht so, 10 = „Jetzt hab ich aber schon wieder einen Durst!“</div>
+    </fieldset>
+    <button class="primary" type="submit">Hopfenspeicher messen</button>
+  </form>
+
+  <div class="card analyse" id="analyse" hidden>
+    <svg viewBox="0 0 60 80" aria-hidden="true"><path d="M10 10 h40 l-4 64 h-32 z" fill="#f2a51a" stroke="#3b1f0a" stroke-width="4"/><ellipse cx="30" cy="10" rx="22" ry="7" fill="#fffaf0" stroke="#3b1f0a" stroke-width="3"/></svg>
+    <span id="analyseText">Hopfenwerte werden gemessen …</span>
+  </div>
+
+  <div class="card" id="befund" hidden>
+    <div class="result">
+      <svg class="mug" viewBox="0 0 150 170" aria-label="Füllstand Hopfenspeicher">
+        <defs><clipPath id="inner"><rect x="16" y="24" width="88" height="132" rx="8"/></clipPath></defs>
+        <g clip-path="url(#inner)">
+          <rect x="16" y="24" width="88" height="132" fill="#fff3d6"/>
+          <rect id="level" x="16" y="156" width="88" height="0" fill="#f2a51a"/>
+        </g>
+        <rect x="16" y="24" width="88" height="132" rx="8" fill="none" stroke="#3b1f0a" stroke-width="6"/>
+        <path d="M104 50 h16 a14 14 0 0 1 14 14 v44 a14 14 0 0 1 -14 14 h-16" fill="none" stroke="#3b1f0a" stroke-width="8"/>
+        <line x1="40" y1="40" x2="40" y2="140" stroke="#3b1f0a" stroke-width="2" opacity=".15"/>
+        <line x1="60" y1="40" x2="60" y2="140" stroke="#3b1f0a" stroke-width="2" opacity=".15"/>
+        <line x1="80" y1="40" x2="80" y2="140" stroke="#3b1f0a" stroke-width="2" opacity=".15"/>
+        <text x="60" y="166" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="12" fill="#3b1f0a" id="levelText"></text>
+      </svg>
+      <div style="display:grid;gap:14px;min-width:0">
+        <div><span class="stamp">Chronische Unterhopfung</span></div>
+        <ul class="werte" id="werte"></ul>
+      </div>
+    </div>
+    <p id="kommentar" style="margin:0;font-weight:700"></p>
+    <div class="rx">
+      <span class="k">Ärztliche Verordnung</span>
+      <strong>Bitte jetzt ein Bier trinken.</strong>
+    </div>
+    <div class="row">
+      <button class="primary" type="button" id="copy">Befund kopieren</button>
+      <button class="ghost" type="button" id="again">Nochmal testen</button>
+    </div>
+    <div class="hint" id="copied" hidden style="text-align:center">Kopiert. Ab in die Gruppe damit.</div>
+  </div>
+
+  <footer>Kein medizinischer Befund. Bei Risiken und Nebenwirkungen fragen Sie Ihren Wirt.</footer>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+
+// Bläschen
+const b = $('#bubbles');
+for (let i = 0; i < 28; i++) {
+  const el = document.createElement('i');
+  const s = 4 + Math.random() * 12;
+  Object.assign(el.style, { width: s + 'px', height: s + 'px', left: Math.random() * 100 + '%',
+    animationDuration: (6 + Math.random() * 10) + 's', animationDelay: (-Math.random() * 15) + 's' });
+  b.appendChild(el);
+}
+
+$('#durst').addEventListener('input', e => $('#durstOut').textContent = e.target.value);
+
+const kommentare = {
+  jetzt: 'Frisch Getrunkenes wird vom Hopfenspeicher sofort verstoffwechselt. Der Wert bleibt kritisch.',
+  stunde: 'Eine Stunde ohne Nachschub reicht, um den Speicher unter den Normbereich fallen zu lassen.',
+  gestern: 'Über Nacht hat sich der Speicher vollständig entleert. Typischer Verlauf.',
+  woche: 'Akute Versorgungslücke. Der Befund wurde mit höchster Dringlichkeit markiert.',
+  nie: 'Gedächtnislücken sind ein klassisches Begleitsymptom fortgeschrittener Unterhopfung.'
+};
+const zusatz = {
+  Radler: ' Radler wird nur zur Hälfte angerechnet.',
+  Alkoholfrei: ' Alkoholfreies füllt den Speicher nur symbolisch.',
+  'Weißbier': ' Hefe allein ersetzt keinen Hopfen.',
+  Pils: ' Pils wurde erkannt, reicht aber nicht.',
+  Helles: ' Selbst ein Helles konnte den Mangel nicht ausgleichen.'
+};
+const mengeTxt = { schluck: 'Ein Schluck zählt medizinisch als nichts.', '033': '0,33 l gelten in Bayern als Probiergröße.',
+  '05': '', mass: '', viel: 'Auch mehrere Maß halten nicht lange vor.' };
+
+$('#f').addEventListener('submit', e => {
+  e.preventDefault();
+  const d = new FormData(e.target);
+  const wann = d.get('wann'), sorte = d.get('sorte'), menge = d.get('menge'), durst = +$('#durst').value;
+  $('#f').hidden = true; $('#analyse').hidden = false;
+  const steps = ['Hopfenwerte werden gemessen …', 'Stammwürze wird zentrifugiert …', 'Befund wird gezapft …'];
+  steps.forEach((t, i) => setTimeout(() => $('#analyseText').textContent = t, i * 700));
+  setTimeout(() => {
+    $('#analyse').hidden = true; $('#befund').hidden = false;
+    const fuell = Math.round(3 + Math.random() * 12);
+    const hop = (Math.random() * 1.8 + 0.4).toFixed(1).replace('.', ',');
+    $('#werte').innerHTML =
+      `<li><span>Hopfenspiegel</span><b>${hop} mg/dl ↓</b></li>
+       <li><span>Speicher-Füllstand</span><b>${fuell} % ↓</b></li>
+       <li><span>Durstindex</span><b>${durst * 11} % ↑</b></li>
+       <li><span>Normbereich</span><span>60–95 %</span></li>`;
+    $('#kommentar').textContent = [kommentare[wann], mengeTxt[menge], zusatz[sorte]].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+    const lvl = $('#level'); lvl.setAttribute('y', 156); lvl.setAttribute('height', 0);
+    $('#levelText').textContent = fuell + ' % voll';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const h = 132 * fuell / 100;
+      lvl.style.y = (156 - h) + 'px'; lvl.style.height = h + 'px';
+    }));
+    $('#befund').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 2100);
+});
+
+$('#again').addEventListener('click', () => {
+  $('#befund').hidden = true; $('#copied').hidden = true; $('#f').hidden = false;
+  $('#level').style.y = '156px'; $('#level').style.height = '0px';
+});
+
+$('#copy').addEventListener('click', () => {
+  const txt = `🍺 Hopfenspeicher-Befund\nDiagnose: Chronische Unterhopfung\n${$('#kommentar').textContent}\nTherapie: Bitte jetzt ein Bier trinken.\n${location.href}`;
+  const done = () => $('#copied').hidden = false;
+  if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, done); else done();
+});
+</script>
+</body>
+</html>
