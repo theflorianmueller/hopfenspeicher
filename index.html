@@ -70,6 +70,11 @@ legend { font-family: var(--display); font-size: 19px; padding: 0; margin-bottom
 .range input { flex: 1; accent-color: var(--amber-dark); height: 28px; }
 .range output { font-family: var(--display); font-size: 24px; min-width: 2ch; text-align: right; }
 .hint { font-size: 14px; opacity: .75; }
+.stepper { display: flex; align-items: center; gap: 10px; }
+.stepper button { width: 48px; height: 48px; padding: 0; font-size: 26px; line-height: 1; }
+.stepper input { width: 72px; height: 48px; text-align: center; font: 400 26px var(--display); color: var(--brown);
+  border: 2px solid var(--brown); border-radius: 12px; background: #fff; }
+.stueck { font-weight: 800; }
 button { font: 800 18px var(--body); padding: 14px 22px; border-radius: 999px; border: 0; cursor: pointer; }
 .primary { background: var(--brown); color: var(--amber); box-shadow: 0 4px 0 #1c0e04; }
 .primary:active { transform: translateY(3px); box-shadow: 0 1px 0 #1c0e04; }
@@ -127,13 +132,18 @@ footer { text-align: center; font-size: 13px; font-weight: 700; opacity: .8; }
       </div>
     </fieldset>
     <fieldset>
-      <legend>Wie viel war es?</legend>
+      <legend>Wie viele waren es?</legend>
+      <div class="stepper">
+        <button type="button" class="ghost" id="minus" aria-label="Eins weniger">−</button>
+        <input type="number" id="anzahl" min="1" max="99" value="1" inputmode="numeric" aria-label="Anzahl Bier">
+        <button type="button" class="ghost" id="plus" aria-label="Eins mehr">+</button>
+        <span class="stueck" id="stueck">Bier</span>
+      </div>
       <div class="opts">
-        <label><input type="radio" name="menge" value="schluck"><span>Ein Schluck</span></label>
+        <label><input type="radio" name="menge" value="schluck"><span>Schluck</span></label>
         <label><input type="radio" name="menge" value="033"><span>0,33 l</span></label>
         <label><input type="radio" name="menge" value="05" checked><span>Halbe</span></label>
-        <label><input type="radio" name="menge" value="mass"><span>Eine Maß</span></label>
-        <label><input type="radio" name="menge" value="viel"><span>Mehrere Maß</span></label>
+        <label><input type="radio" name="menge" value="mass"><span>Maß</span></label>
       </div>
     </fieldset>
     <fieldset>
@@ -226,8 +236,25 @@ const zusatz = {
   Pils: ' Pils wurde erkannt, reicht aber nicht.',
   Helles: ' Selbst ein Helles konnte den Mangel nicht ausgleichen.'
 };
-const mengeTxt = { schluck: 'Ein Schluck zählt medizinisch als nichts.', '033': '0,33 l gelten in Bayern als Probiergröße.',
-  '05': '', mass: '', viel: 'Auch mehrere Maß halten nicht lange vor.' };
+const groesse = { schluck: ['Schluck', 'Schlucke', 0.02], '033': ['kleines', 'kleine', 0.33], '05': ['Halbe', 'Halbe', 0.5], mass: ['Maß', 'Maß', 1] };
+const anzahlEl = $('#anzahl');
+const getAnzahl = () => Math.min(99, Math.max(1, parseInt(anzahlEl.value, 10) || 1));
+const updStueck = () => { const g = groesse[new FormData($('#f')).get('menge')]; $('#stueck').textContent = getAnzahl() === 1 ? g[0] : g[1]; };
+$('#minus').addEventListener('click', () => { anzahlEl.value = getAnzahl() - 1 || 1; updStueck(); });
+$('#plus').addEventListener('click', () => { anzahlEl.value = Math.min(99, getAnzahl() + 1); updStueck(); });
+anzahlEl.addEventListener('input', updStueck);
+document.querySelectorAll('input[name=menge]').forEach(r => r.addEventListener('change', updStueck));
+updStueck();
+
+function mengeTxt(menge, n, sorte) {
+  const g = groesse[menge], liter = (g[2] * n).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+  const was = `${n} ${n === 1 ? g[0] : g[1]} ${sorte}`;
+  if (menge === 'schluck') return `${was}: Schlucke zählen medizinisch als nichts.`;
+  if (n === 1) return `${was}? Das ist keine Versorgung, das ist eine Kostprobe.`;
+  if (n <= 3) return `${was}, zusammen ${liter} l. Der Speicher hat das restlos verbraucht.`;
+  if (n <= 6) return `${was}, zusammen ${liter} l. Respektabel, aber längst abgebaut.`;
+  return `${was}, zusammen ${liter} l. Der Speicher hat ein Loch. Sofort nachfüllen.`;
+}
 
 $('#f').addEventListener('submit', e => {
   e.preventDefault();
@@ -245,7 +272,7 @@ $('#f').addEventListener('submit', e => {
        <li><span>Speicher-Füllstand</span><b>${fuell} % ↓</b></li>
        <li><span>Durstindex</span><b>${durst * 11} % ↑</b></li>
        <li><span>Normbereich</span><span>60–95 %</span></li>`;
-    $('#kommentar').textContent = [kommentare[wann], mengeTxt[menge], zusatz[sorte]].filter(Boolean).join(' ').replace(/\s+/g, ' ');
+    $('#kommentar').textContent = [mengeTxt(menge, getAnzahl(), sorte), kommentare[wann], zusatz[sorte]].filter(Boolean).join(' ');
     const lvl = $('#level'); lvl.setAttribute('y', 156); lvl.setAttribute('height', 0);
     $('#levelText').textContent = fuell + ' % voll';
     requestAnimationFrame(() => requestAnimationFrame(() => {
